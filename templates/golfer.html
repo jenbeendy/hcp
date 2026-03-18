@@ -1,0 +1,47 @@
+{{define "content"}}
+<div class="container">
+  <a href="/" class="back">← Zpět</a>
+  <h2>{{.FullName}}</h2>
+  <table class="info">
+    <tr><td>Členské číslo</td><td><strong>{{.MemberNumber}}</strong></td></tr>
+    <tr><td>Domovský klub</td><td><strong>{{.HomeClub}}</strong></td></tr>
+    <tr><td>Aktuální HI</td><td><strong>{{.CurrentHI}}</strong></td></tr>
+  </table>
+  <p><a href="/golfer/{{.ID}}/registrations">Registrace na turnaje →</a></p>
+
+  <div class="table-wrap">
+    <table class="results">
+      <thead>
+        <tr>
+          <th>Datum</th><th>Par</th><th>CR</th><th>SR</th>
+          <th>Rány</th><th>Body</th><th>UHV</th><th>PCC</th>
+          <th>SU</th><th>PO</th><th>WHS HI</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Records}}
+        <tr class="{{.RowClass}}">
+          <td>{{.Date}}</td>
+          <td>{{.Par}}</td>
+          <td>{{.CR}}</td>
+          <td>{{.SR}}</td>
+          <td>{{.Strokes}}</td>
+          <td>{{.Points}}</td>
+          <td>{{.UHV}}</td>
+          <td>{{.PCC}}</td>
+          <td>{{.SU}}</td>
+          <td><strong>{{.PO}}</strong></td>
+          <td>{{.WhsHI}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="legend">
+    <span class="hilightAverageColor swatch"></span> Započtené &nbsp;
+    <span class="hilightInputColor swatch"></span> Posledních 20 &nbsp;
+    <span class="hilightExtraResult swatch"></span> Výjímečný
+  </div>
+</div>
+{{end}}

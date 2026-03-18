@@ -1,0 +1,15 @@
+{{define "content"}}
+<div class="container">
+  <a href="/" class="back">← Zpět</a>
+  <h2>Správa golfistů</h2>
+
+  {{if .Error}}<p class="msg error">{{.Error}}</p>{{end}}
+  {{if .Success}}<p class="msg success">{{.Success}}</p>{{end}}
+
+  <form method="POST" action="/adminpage" class="admin-form">
+    <label for="golfer_id">ID golfisty (CGF):</label>
+    <input type="number" id="golfer_id" name="golfer_id" placeholder="150909" required>
+    <button type="submit">Přidat</button>
+  </form>
+</div>
+{{end}}

@@ -1,0 +1,11 @@
+{{define "content"}}
+<div class="container">
+  <ul class="player-list">
+    {{range .}}
+    <li><a href="/golfer/{{.ID}}" class="player-card">{{.Name}}</a></li>
+    {{else}}
+    <li class="empty">Zatím žádní golfisté.</li>
+    {{end}}
+  </ul>
+</div>
+{{end}}
