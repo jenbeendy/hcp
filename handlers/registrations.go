@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"html/template"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 
@@ -63,10 +64,14 @@ func Registrations(database *sql.DB, client *api.Client) http.HandlerFunc {
 			return
 		}
 
+		sort.Slice(regs, func(i, j int) bool {
+			return regs[i].DateActionFrom < regs[j].DateActionFrom
+		})
+
 		display := make([]DisplayRegistration, len(regs))
 		for i, reg := range regs {
 			display[i] = DisplayRegistration{
-				Name:           reg.Name,
+				Name:           truncate(reg.Name, 55),
 				DateFrom:       formatDateTime(reg.DateActionFrom),
 				DateTo:         formatDateTime(reg.DateActionTo),
 				CourseName:     reg.CourseName,
@@ -88,6 +93,14 @@ func Registrations(database *sql.DB, client *api.Client) http.HandlerFunc {
 			Registrations: display,
 		})
 	}
+}
+
+func truncate(s string, max int) string {
+	r := []rune(s)
+	if len(r) <= max {
+		return s
+	}
+	return string(r[:max-1]) + "…"
 }
 
 func formatDateTime(s string) string {
