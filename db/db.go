@@ -58,6 +58,21 @@ func AddGolfer(db *sql.DB, id int, name string) error {
 	return err
 }
 
+func DeleteGolfer(db *sql.DB, id int) error {
+	res, err := db.Exec(`DELETE FROM golfers WHERE id = ?`, id)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
 func GolferExists(db *sql.DB, id int) (bool, error) {
 	var count int
 	err := db.QueryRow(`SELECT COUNT(*) FROM golfers WHERE id = ?`, id).Scan(&count)

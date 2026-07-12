@@ -228,3 +228,23 @@ td.score { font-weight: 700; }
 @media (max-width: 600px) {
   .container { padding: 1rem; }
 }
+
+.admin-table {
+  margin-top: 1.5rem;
+  border-collapse: collapse;
+}
+.admin-table th, .admin-table td {
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+.admin-table button.danger {
+  padding: 0.3rem 0.8rem;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.admin-table button.danger:hover { background: #b91c1c; }

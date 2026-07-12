@@ -14,15 +14,45 @@ import (
 type AdminData struct {
 	Error   string
 	Success string
+	Golfers []db.Golfer
 }
 
 func AdminGet(database *sql.DB) http.HandlerFunc {
 	tmpl := template.Must(template.ParseFiles("templates/base.html", "templates/admin.html"))
 	return func(w http.ResponseWriter, r *http.Request) {
+		golfers, err := db.ListGolfers(database)
+		if err != nil {
+			http.Error(w, "Chyba databáze", http.StatusInternalServerError)
+			return
+		}
 		tmpl.ExecuteTemplate(w, "base", AdminData{
 			Error:   r.URL.Query().Get("error"),
 			Success: r.URL.Query().Get("success"),
+			Golfers: golfers,
 		})
+	}
+}
+
+func AdminDelete(database *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(r.FormValue("golfer_id"))
+		if err != nil {
+			http.Redirect(w, r, "/adminpage?error="+url.QueryEscape("Neplatné ID"), http.StatusSeeOther)
+			return
+		}
+
+		golfer, err := db.GetGolfer(database, id)
+		if err != nil {
+			http.Redirect(w, r, "/adminpage?error="+url.QueryEscape("Golfista nenalezen"), http.StatusSeeOther)
+			return
+		}
+
+		if err := db.DeleteGolfer(database, id); err != nil {
+			http.Redirect(w, r, "/adminpage?error="+url.QueryEscape("Chyba při mazání"), http.StatusSeeOther)
+			return
+		}
+
+		http.Redirect(w, r, "/adminpage?success="+url.QueryEscape("Odebrán: "+golfer.Name), http.StatusSeeOther)
 	}
 }
 

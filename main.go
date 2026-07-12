@@ -45,6 +45,7 @@ func main() {
 	mux.HandleFunc("GET /golfer/{id}/tournament/{tid}/detail", handlers.RoundDetail(client))
 	mux.HandleFunc("GET /adminpage", handlers.AdminGet(database))
 	mux.HandleFunc("POST /adminpage", handlers.AdminPost(database, client))
+	mux.HandleFunc("POST /adminpage/delete", handlers.AdminDelete(database))
 
 	log.Printf("Listening on :%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, mux))

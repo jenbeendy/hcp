@@ -11,5 +11,24 @@
     <input type="number" id="golfer_id" name="golfer_id" placeholder="150909" required>
     <button type="submit">Přidat</button>
   </form>
+
+  {{if .Golfers}}
+  <h3>Golfisté</h3>
+  <table class="admin-table">
+    <tr><th>ID</th><th>Jméno</th><th></th></tr>
+    {{range .Golfers}}
+    <tr>
+      <td>{{.ID}}</td>
+      <td>{{.Name}}</td>
+      <td>
+        <form method="POST" action="/adminpage/delete" onsubmit="return confirm('Opravdu odebrat {{.Name}}?')">
+          <input type="hidden" name="golfer_id" value="{{.ID}}">
+          <button type="submit" class="danger">Odebrat</button>
+        </form>
+      </td>
+    </tr>
+    {{end}}
+  </table>
+  {{end}}
 </div>
 {{end}}
