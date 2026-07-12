@@ -29,7 +29,7 @@ func TestScorecardRender(t *testing.T) {
 		t.Fatal(err)
 	}
 	out := buf.String()
-	for _, want := range []string{"Slapy", "OUT", "IN", "score-birdie", "score-double", ">81<", ">35<", ">42<", ">39<"} {
+	for _, want := range []string{"Testville", "OUT", "IN", "score-birdie", "score-double", ">81<", ">35<", ">42<", ">39<"} {
 		if !bytes.Contains(buf.Bytes(), []byte(want)) {
 			t.Errorf("output missing %q", want)
 		}
