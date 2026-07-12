@@ -20,7 +20,7 @@
       </thead>
       <tbody>
         {{range .Records}}
-        <tr class="{{.RowClass}}">
+        <tr class="{{.RowClass}}{{if .Clickable}} clickable{{end}}"{{if .Clickable}} data-tournament="{{.TournamentID}}"{{end}}>
           <td>{{.Date}}</td>
           <td>{{.Par}}</td>
           <td>{{.CR}}</td>
@@ -44,4 +44,46 @@
     <span class="hilightExtraResult swatch"></span> Výjímečný
   </div>
 </div>
+
+<script>
+(function () {
+  var golferId = {{.ID}};
+  document.querySelectorAll("tr.clickable").forEach(function (row) {
+    row.addEventListener("click", function () {
+      var next = row.nextElementSibling;
+      if (next && next.classList.contains("detail-row")) {
+        next.hidden = !next.hidden;
+        row.classList.toggle("expanded", !next.hidden);
+        return;
+      }
+      if (row.dataset.loading) return;
+      row.dataset.loading = "1";
+
+      var detail = document.createElement("tr");
+      detail.className = "detail-row";
+      var cell = document.createElement("td");
+      cell.colSpan = row.children.length;
+      cell.textContent = "Načítám…";
+      detail.appendChild(cell);
+      row.after(detail);
+
+      fetch("/golfer/" + golferId + "/tournament/" + row.dataset.tournament + "/detail")
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.status);
+          return resp.text();
+        })
+        .then(function (html) {
+          cell.innerHTML = html;
+          row.classList.add("expanded");
+        })
+        .catch(function () {
+          cell.textContent = "Detail kola se nepodařilo načíst.";
+        })
+        .finally(function () {
+          delete row.dataset.loading;
+        });
+    });
+  });
+})();
+</script>
 {{end}}

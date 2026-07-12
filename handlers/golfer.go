@@ -14,18 +14,20 @@ import (
 )
 
 type DisplayRecord struct {
-	Date     string
-	Par      int
-	CR       string
-	SR       int
-	Strokes  string
-	Points   int
-	UHV      int
-	PCC      int
-	SU       int
-	PO       string
-	WhsHI    string
-	RowClass string
+	Date         string
+	Par          int
+	CR           string
+	SR           int
+	Strokes      string
+	Points       int
+	UHV          int
+	PCC          int
+	SU           int
+	PO           string
+	WhsHI        string
+	RowClass     string
+	TournamentID int64
+	Clickable    bool
 }
 
 type GolferData struct {
@@ -89,18 +91,20 @@ func convertRecord(r api.HCPRecord) DisplayRecord {
 	}
 
 	return DisplayRecord{
-		Date:     date,
-		Par:      r.Par,
-		CR:       strings.Replace(fmt.Sprintf("%.1f", r.CR), ".", ",", 1),
-		SR:       r.SR,
-		Strokes:  strokes,
-		Points:   r.Points,
-		UHV:      r.UHV,
-		PCC:      r.PCC,
-		SU:       r.SU,
-		PO:       strings.Replace(fmt.Sprintf("%.1f", r.PO), ".", ",", 1),
-		WhsHI:    r.WhsHI,
-		RowClass: rowClass(r),
+		Date:         date,
+		Par:          r.Par,
+		CR:           strings.Replace(fmt.Sprintf("%.1f", r.CR), ".", ",", 1),
+		SR:           r.SR,
+		Strokes:      strokes,
+		Points:       r.Points,
+		UHV:          r.UHV,
+		PCC:          r.PCC,
+		SU:           r.SU,
+		PO:           strings.Replace(fmt.Sprintf("%.1f", r.PO), ".", ",", 1),
+		WhsHI:        r.WhsHI,
+		RowClass:     rowClass(r),
+		TournamentID: r.TournamentID,
+		Clickable:    r.TournamentID != 0 && r.Strokes != nil,
 	}
 }
 

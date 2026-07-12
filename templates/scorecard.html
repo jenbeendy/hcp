@@ -1,0 +1,75 @@
+{{define "scorecard"}}
+{{range .Rounds}}
+<div class="scorecard">
+  <div class="scorecard-head">
+    <div>
+      <strong>{{.CourseName}}</strong> — {{.StipRoundName}}{{if .MultiRound}} (kolo {{.RoundIndex}}){{end}}
+      <span class="muted">{{.Date}}</span>
+    </div>
+    <div class="scorecard-meta">
+      <span>Odpaliště: <strong>{{.TeeColor}}</strong></span>
+      <span>Par: <strong>{{.Par}}</strong></span>
+      <span>CR: <strong>{{.CR}}</strong></span>
+      <span>SR: <strong>{{.SR}}</strong></span>
+      <span>PCC: <strong>{{.PCC}}</strong></span>
+      <span>Hrací HCP: <strong>{{.PlayingHcp}}</strong></span>
+      <span>HCP: <strong>{{.HcpBefore}} → {{.HcpAfter}}</strong></span>
+    </div>
+  </div>
+  {{range .Groups}}
+  <div class="table-wrap">
+    <table class="holes">
+      <tr class="hole-row">
+        <th>Jamka</th>
+        {{range .Holes}}<td>{{.Index}}</td>{{end}}
+        <th>{{.Label}}</th>
+      </tr>
+      <tr>
+        <th>Délka</th>
+        {{range .Holes}}<td>{{.Length}}</td>{{end}}
+        <th>{{.LengthTotal}}</th>
+      </tr>
+      <tr>
+        <th>Par</th>
+        {{range .Holes}}<td>{{.Par}}</td>{{end}}
+        <th>{{.ParTotal}}</th>
+      </tr>
+      <tr>
+        <th>HCP index</th>
+        {{range .Holes}}<td class="muted">{{.HcpIndex}}</td>{{end}}
+        <th></th>
+      </tr>
+      <tr>
+        <th>HCP rány</th>
+        {{range .Holes}}<td class="muted">{{if .HcpStrokes}}+{{.HcpStrokes}}{{end}}</td>{{end}}
+        <th></th>
+      </tr>
+      <tr>
+        <th>Rány</th>
+        {{range .Holes}}<td class="score {{.ScoreClass}}">{{.Strokes}}</td>{{end}}
+        <th>{{.StrokesTotal}}</th>
+      </tr>
+      <tr>
+        <th>Stableford</th>
+        {{range .Holes}}<td>{{.Stableford}}</td>{{end}}
+        <th>{{.StablefordTotal}}</th>
+      </tr>
+    </table>
+  </div>
+  {{end}}
+  <div class="scorecard-foot">
+    <span>Rány celkem: <strong>{{.Strokes}}</strong></span>
+    <span>Stableford netto: <strong>{{.StablefordNetto}}</strong></span>
+  </div>
+  <div class="legend">
+    <span class="score-eagle swatch"></span> Eagle a lepší &nbsp;
+    <span class="score-birdie swatch"></span> Birdie &nbsp;
+    <span class="score-par swatch"></span> Par &nbsp;
+    <span class="score-bogey swatch"></span> Bogey &nbsp;
+    <span class="score-double swatch"></span> Double bogey a horší
+  </div>
+</div>
+{{else}}
+<div class="empty">Detail kola není k dispozici.</div>
+{{end}}
+{{end}}

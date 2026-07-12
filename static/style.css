@@ -159,6 +159,72 @@ table.results th:first-child {
 }
 .admin-form button:hover { background: #1d4ed8; }
 
+tr.clickable { cursor: pointer; }
+tr.clickable:hover td { background: rgba(37, 99, 235, 0.08); }
+tr.clickable td:first-child::before {
+  content: "▸ ";
+  color: #999;
+  font-size: 0.8em;
+}
+tr.clickable.expanded td:first-child::before { content: "▾ "; }
+
+tr.detail-row > td {
+  padding: 0.5rem;
+  background: #fafafa;
+  text-align: left;
+  white-space: normal;
+}
+
+.scorecard { margin: 0.25rem 0; }
+.scorecard + .scorecard { margin-top: 1rem; }
+
+.scorecard-head {
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+.scorecard-head .muted { margin-left: 0.5rem; }
+.scorecard-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-top: 0.25rem;
+  color: #555;
+}
+
+table.holes {
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  margin-bottom: 0.5rem;
+}
+table.holes th,
+table.holes td {
+  border: 1px solid #ddd;
+  padding: 0.2rem 0.4rem;
+  text-align: center;
+  min-width: 2em;
+}
+table.holes th {
+  background: #f0f0f0;
+  font-weight: 600;
+}
+table.holes tr > th:first-child { text-align: left; }
+table.holes .hole-row td { font-weight: 600; background: #f7f7f7; }
+
+td.score { font-weight: 700; }
+.score-eagle  { background-color: #fde047; }
+.score-birdie { background-color: #fca5a5; }
+.score-par    { background-color: #e5e7eb; }
+.score-bogey  { background-color: #93c5fd; }
+.score-double { background-color: #3b82f6; color: #fff; }
+
+.scorecard-foot {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.4rem;
+}
+
 @media (max-width: 600px) {
   .container { padding: 1rem; }
 }

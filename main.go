@@ -42,6 +42,7 @@ func main() {
 	mux.HandleFunc("GET /", handlers.Players(database))
 	mux.HandleFunc("GET /golfer/{id}", handlers.Golfer(database, client))
 	mux.HandleFunc("GET /golfer/{id}/registrations", handlers.Registrations(database, client))
+	mux.HandleFunc("GET /golfer/{id}/tournament/{tid}/detail", handlers.RoundDetail(client))
 	mux.HandleFunc("GET /adminpage", handlers.AdminGet(database))
 	mux.HandleFunc("POST /adminpage", handlers.AdminPost(database, client))
 
