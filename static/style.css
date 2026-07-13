@@ -212,9 +212,9 @@ table.holes tr > th:first-child { text-align: left; }
 table.holes .hole-row td { font-weight: 600; background: #f7f7f7; }
 
 td.score { font-weight: 700; }
-.score-eagle  { background-color: #fde047; }
+.score-eagle  { background-color: #86efac; }
 .score-birdie { background-color: #fca5a5; }
-.score-par    { background-color: #e5e7eb; }
+.score-par    { background-color: #fde047; }
 .score-bogey  { background-color: #93c5fd; }
 .score-double { background-color: #3b82f6; color: #fff; }
 
