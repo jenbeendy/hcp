@@ -15,11 +15,38 @@ func Init(path string) (*sql.DB, error) {
 }
 
 func Migrate(db *sql.DB) error {
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS golfers (
-		id   INTEGER PRIMARY KEY,
-		name TEXT NOT NULL
-	)`)
-	return err
+	stmts := []string{
+		`CREATE TABLE IF NOT EXISTS golfers (
+			id   INTEGER PRIMARY KEY,
+			name TEXT NOT NULL
+		)`,
+		`CREATE TABLE IF NOT EXISTS tournaments (
+			id          INTEGER PRIMARY KEY,
+			course_name TEXT NOT NULL DEFAULT '',
+			date        TEXT NOT NULL DEFAULT ''
+		)`,
+		`CREATE TABLE IF NOT EXISTS tournament_cache (
+			tournament_id   INTEGER PRIMARY KEY,
+			categories_json TEXT NOT NULL,
+			entries_json    TEXT NOT NULL,
+			fetched_at      TEXT NOT NULL
+		)`,
+		`CREATE TABLE IF NOT EXISTS tournament_results (
+			tournament_id INTEGER NOT NULL,
+			golfer_id     INTEGER NOT NULL,
+			strokes       INTEGER NOT NULL DEFAULT 0,
+			stableford    INTEGER NOT NULL DEFAULT 0,
+			has_result    INTEGER NOT NULL DEFAULT 0,
+			fetched_at    TEXT NOT NULL,
+			PRIMARY KEY (tournament_id, golfer_id)
+		)`,
+	}
+	for _, s := range stmts {
+		if _, err := db.Exec(s); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type Golfer struct {

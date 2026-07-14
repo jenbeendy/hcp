@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -80,10 +81,38 @@ type Registration struct {
 	IsRegistered       bool   `json:"isRegistered"`
 }
 
+type TournamentCategory struct {
+	TournamentCategoryID int64  `json:"tournamentCategoryId"`
+	Name                 string `json:"name"`
+	PlayingSystemName    string `json:"playingSystemName"`
+	Order                int    `json:"order"`
+	Main                 bool   `json:"main"`
+	HcpUse               bool   `json:"hcpUse"`
+	HcpCorrection        bool   `json:"hcpCorrection"`
+}
+
+type TournamentEntry struct {
+	GolferID      int64   `json:"golferId"`
+	GolferName    string  `json:"golferName"`
+	ClubShortName string  `json:"clubShortName"`
+	HcpText       string  `json:"hcpText"`
+	HcpNumber     float64 `json:"hcpNumber"`
+	Categories    []struct {
+		CategoryID int64 `json:"categoryId"`
+	} `json:"categories"`
+}
+
 type Client struct {
 	token string
 	http  *http.Client
+
+	mu       sync.Mutex
+	lastCall time.Time
 }
+
+// minCallGap keeps API calls at least this far apart so the servers
+// are not overloaded.
+const minCallGap = 50 * time.Millisecond
 
 func NewClient(token string) *Client {
 	return &Client{
@@ -92,7 +121,17 @@ func NewClient(token string) *Client {
 	}
 }
 
+func (c *Client) throttle() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if wait := minCallGap - time.Since(c.lastCall); wait > 0 {
+		time.Sleep(wait)
+	}
+	c.lastCall = time.Now()
+}
+
 func (c *Client) do(ctx context.Context, url string) (*http.Response, error) {
+	c.throttle()
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -131,6 +170,40 @@ func (c *Client) GetRoundDetail(ctx context.Context, tournamentID, golferID stri
 		return nil, fmt.Errorf("API %s", resp.Status)
 	}
 	var result []RoundDetail
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (c *Client) GetTournamentCategories(ctx context.Context, tournamentID string) ([]TournamentCategory, error) {
+	url := fmt.Sprintf("https://api.cgf.cz/api/v1/tournament/%s/category", tournamentID)
+	resp, err := c.do(ctx, url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("API %s", resp.Status)
+	}
+	var result []TournamentCategory
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (c *Client) GetTournamentEntries(ctx context.Context, tournamentID string) ([]TournamentEntry, error) {
+	url := fmt.Sprintf("https://api.cgf.cz/api/v1/tournament/%s/entry", tournamentID)
+	resp, err := c.do(ctx, url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("API %s", resp.Status)
+	}
+	var result []TournamentEntry
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}

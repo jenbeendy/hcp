@@ -1,0 +1,92 @@
+{{define "content"}}
+<div class="container">
+  <a href="/tournament" class="back">← Turnaje</a>
+  <h2>Výsledky — {{.Title}}</h2>
+
+  <div class="date-nav">
+    <select id="category-select">
+      {{range .Categories}}
+      <option value="{{.ID}}"{{if .Selected}} selected{{end}}>{{.Name}}</option>
+      {{end}}
+    </select>
+    <form method="post" action="/tournament/{{.TournamentID}}/invalidate?category={{.SelectedID}}">
+      <button type="submit" class="btn">Obnovit data</button>
+    </form>
+  </div>
+
+  <div id="results-container">
+    <p class="empty">Načítám výsledky…</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var tid = {{.TournamentID}};
+  var category = {{.SelectedID}};
+  var container = document.getElementById("results-container");
+  var polls = 0;
+
+  document.getElementById("category-select").addEventListener("change", function () {
+    location.href = "/tournament/" + tid + "/results?category=" + this.value;
+  });
+
+  function load() {
+    fetch("/tournament/" + tid + "/results/data?category=" + category)
+      .then(function (resp) {
+        if (!resp.ok) throw new Error(resp.status);
+        return resp.json();
+      })
+      .then(function (data) {
+        container.innerHTML = data.html;
+        if (!data.done && polls++ < 200) {
+          setTimeout(load, 1000);
+        }
+      })
+      .catch(function () {
+        container.innerHTML = '<p class="empty">Výsledky se nepodařilo načíst.</p>';
+      });
+  }
+  load();
+})();
+</script>
+{{end}}
+
+{{define "result-rows"}}
+{{if not .Done}}
+<p class="muted">Načítám výsledky… {{.Loaded}} / {{.Total}}</p>
+{{end}}
+{{if .Rows}}
+<div class="table-wrap">
+  <table class="results">
+    <thead>
+      <tr>
+        <th>Pořadí</th>
+        <th>Hráč</th>
+        <th>Klub</th>
+        <th>HCP</th>
+        {{if .Stableford}}<th>Body</th><th>Rány</th>{{else}}<th>Rány</th><th>Body</th>{{end}}
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Rows}}
+      <tr{{if or .Pending .NoResult}} class="muted"{{end}}>
+        <td>{{.Place}}</td>
+        <td>{{.Name}}</td>
+        <td>{{.Club}}</td>
+        <td>{{.HCP}}</td>
+        {{if $.Stableford}}
+        <td><strong>{{if .Pending}}…{{else}}{{.Stableford}}{{end}}</strong></td>
+        <td>{{if not .Pending}}{{.Strokes}}{{end}}</td>
+        {{else}}
+        <td><strong>{{if .Pending}}…{{else}}{{.Strokes}}{{end}}</strong></td>
+        <td>{{if not .Pending}}{{.Stableford}}{{end}}</td>
+        {{end}}
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+{{else}}
+<p class="empty">V této kategorii nejsou žádní hráči.</p>
+{{end}}
+{{end}}

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hcp/golf/api"
+	"github.com/hcp/golf/db"
 )
 
 type ScorecardHole struct {
@@ -52,10 +54,11 @@ type Scorecard struct {
 }
 
 type ScorecardPage struct {
-	Rounds []Scorecard
+	TournamentID int64
+	Rounds       []Scorecard
 }
 
-func RoundDetail(client *api.Client) http.HandlerFunc {
+func RoundDetail(database *sql.DB, client *api.Client) http.HandlerFunc {
 	tmpl := template.Must(template.ParseFiles("templates/scorecard.html"))
 	return func(w http.ResponseWriter, r *http.Request) {
 		golferID := r.PathValue("id")
@@ -64,7 +67,8 @@ func RoundDetail(client *api.Client) http.HandlerFunc {
 			http.Error(w, "Invalid golfer ID", 400)
 			return
 		}
-		if _, err := strconv.ParseInt(tournamentID, 10, 64); err != nil {
+		tid, err := strconv.ParseInt(tournamentID, 10, 64)
+		if err != nil {
 			http.Error(w, "Invalid tournament ID", 400)
 			return
 		}
@@ -75,7 +79,12 @@ func RoundDetail(client *api.Client) http.HandlerFunc {
 			return
 		}
 
-		page := ScorecardPage{Rounds: make([]Scorecard, len(details))}
+		// remember the tournament so it shows up on /tournament
+		if len(details) > 0 {
+			db.UpsertTournament(database, tid, details[0].CourseName, details[0].RoundDate)
+		}
+
+		page := ScorecardPage{TournamentID: tid, Rounds: make([]Scorecard, len(details))}
 		for i, d := range details {
 			page.Rounds[i] = convertScorecard(d, len(details) > 1)
 		}

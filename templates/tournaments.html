@@ -1,0 +1,31 @@
+{{define "content"}}
+<div class="container">
+  <a href="/" class="back">← Zpět</a>
+  <h2>Turnaje</h2>
+
+  {{if .Tournaments}}
+  <div class="table-wrap">
+    <table class="results">
+      <thead>
+        <tr>
+          <th>Datum</th>
+          <th>Hřiště</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Tournaments}}
+        <tr>
+          <td>{{.Date}}</td>
+          <td>{{.CourseName}}</td>
+          <td><a href="/tournament/{{.ID}}/results">Výsledky →</a></td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+  {{else}}
+  <p class="empty">Zatím žádné prohlížené turnaje. Otevřete detail kola u hráče a klikněte na „Výsledky turnaje".</p>
+  {{end}}
+</div>
+{{end}}

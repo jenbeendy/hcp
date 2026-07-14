@@ -72,4 +72,7 @@
 {{else}}
 <div class="empty">Detail kola není k dispozici.</div>
 {{end}}
+{{if .Rounds}}
+<p><a href="/tournament/{{.TournamentID}}/results">Výsledky turnaje →</a></p>
+{{end}}
 {{end}}
