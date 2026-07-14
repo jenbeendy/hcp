@@ -71,7 +71,7 @@
       {{range .Rows}}
       <tr{{if or .Pending .NoResult}} class="muted"{{end}}>
         <td>{{.Place}}</td>
-        <td>{{.Name}}</td>
+        <td><a href="/golfer/{{.GolferID}}">{{.Name}}</a></td>
         <td>{{.Club}}</td>
         <td>{{.HCP}}</td>
         {{if $.Stableford}}

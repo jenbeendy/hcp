@@ -49,10 +49,9 @@ func Golfer(database *sql.DB, client *api.Client) http.HandlerFunc {
 			return
 		}
 
-		if _, err := db.GetGolfer(database, id); err == sql.ErrNoRows {
-			http.Error(w, "Golfer not found", 404)
-			return
-		} else if err != nil {
+		// golfers linked from tournament results may not be stored
+		// locally — show their HCP history anyway
+		if _, err := db.GetGolfer(database, id); err != nil && err != sql.ErrNoRows {
 			http.Error(w, "DB error", 500)
 			return
 		}

@@ -43,6 +43,7 @@ type TournamentResultsData struct {
 
 type ResultRow struct {
 	Place      string
+	GolferID   int64
 	Name       string
 	Club       string
 	HCP        string
@@ -367,6 +368,7 @@ func buildResultRows(category api.TournamentCategory, members []api.TournamentEn
 		}
 		data.Rows = append(data.Rows, ResultRow{
 			Place:      fmt.Sprintf("%d.", place),
+			GolferID:   s.entry.GolferID,
 			Name:       s.entry.GolferName,
 			Club:       s.entry.ClubShortName,
 			HCP:        s.entry.HcpText,
@@ -377,6 +379,7 @@ func buildResultRows(category api.TournamentCategory, members []api.TournamentEn
 	for _, m := range rest {
 		data.Rows = append(data.Rows, ResultRow{
 			Place:    "—",
+			GolferID: m.GolferID,
 			Name:     m.GolferName,
 			Club:     m.ClubShortName,
 			HCP:      m.HcpText,
