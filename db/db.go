@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"strings"
 
 	_ "modernc.org/sqlite"
 )
@@ -45,6 +46,11 @@ func Migrate(db *sql.DB) error {
 		if _, err := db.Exec(s); err != nil {
 			return err
 		}
+	}
+	// Older databases predate the holes_json column.
+	if _, err := db.Exec(`ALTER TABLE tournament_results ADD COLUMN holes_json TEXT NOT NULL DEFAULT ''`); err != nil &&
+		!strings.Contains(err.Error(), "duplicate column") {
+		return err
 	}
 	return nil
 }

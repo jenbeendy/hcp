@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"math"
 	"net/http"
 	"sort"
 	"strconv"
@@ -225,17 +226,22 @@ func startResultFetch(database *sql.DB, client *api.Client, tid int64, golferIDs
 				// 404 = golfer has no result yet; other errors are
 				// transient and will be retried on the next poll.
 				if strings.Contains(err.Error(), "404") {
-					db.SaveTournamentResult(database, tid, gid, 0, 0, false)
+					db.SaveTournamentResult(database, tid, gid, 0, 0, false, nil)
 				}
 				continue
 			}
 			strokes, stableford, has := 0, 0, false
+			var holes []db.HoleScore
 			if len(details) > 0 {
 				d := details[0]
 				strokes, stableford = d.Strokes, d.StablefordNetto
 				has = strokes > 0 || stableford > 0
+				for _, h := range d.Holes {
+					hs, _ := strconv.Atoi(h.Strokes)
+					holes = append(holes, db.HoleScore{Strokes: hs, Stableford: h.StablefordNetto})
+				}
 			}
-			db.SaveTournamentResult(database, tid, gid, strokes, stableford, has)
+			db.SaveTournamentResult(database, tid, gid, strokes, stableford, has, holes)
 		}
 	}()
 }
@@ -288,7 +294,12 @@ func TournamentResultsRows(database *sql.DB, client *api.Client) http.HandlerFun
 
 		var missing []int64
 		for _, m := range members {
-			if _, ok := results[m.GolferID]; !ok {
+			res, ok := results[m.GolferID]
+			if !ok {
+				missing = append(missing, m.GolferID)
+			} else if res.HasResult && len(res.Holes) == 0 {
+				// Cached before per-hole scores were stored; refetch
+				// so tie-breaking has hole data.
 				missing = append(missing, m.GolferID)
 			}
 		}
@@ -340,10 +351,38 @@ func buildResultRows(category api.TournamentCategory, members []api.TournamentEn
 		}
 		return s.res.Strokes // lowest strokes first
 	}
+	// tailSum is the countback tie-break key over the last n holes:
+	// lower is better (stableford sums are negated, like sortKey).
+	// Missing hole data sorts after any real score.
+	tailSum := func(s scored, n int) int {
+		holes := s.res.Holes
+		if len(holes) == 0 {
+			return math.MaxInt32
+		}
+		if n > len(holes) {
+			n = len(holes)
+		}
+		sum := 0
+		for _, h := range holes[len(holes)-n:] {
+			if stablefordSort {
+				sum -= h.Stableford
+			} else {
+				sum += h.Strokes
+			}
+		}
+		return sum
+	}
 	sort.SliceStable(ranked, func(i, j int) bool {
 		ki, kj := sortKey(ranked[i]), sortKey(ranked[j])
 		if ki != kj {
 			return ki < kj
+		}
+		// Countback: last 9 holes, then last 6, last 3, last hole.
+		for _, n := range []int{9, 6, 3, 1} {
+			ti, tj := tailSum(ranked[i], n), tailSum(ranked[j], n)
+			if ti != tj {
+				return ti < tj
+			}
 		}
 		return ranked[i].entry.GolferName < ranked[j].entry.GolferName
 	})
