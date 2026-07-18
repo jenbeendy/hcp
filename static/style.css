@@ -238,7 +238,7 @@ td.score { font-weight: 700; }
   border-bottom: 1px solid #e5e7eb;
   text-align: left;
 }
-.admin-table button.danger {
+button.danger {
   padding: 0.3rem 0.8rem;
   background: #dc2626;
   color: #fff;
@@ -247,4 +247,4 @@ td.score { font-weight: 700; }
   cursor: pointer;
   font-size: 0.85rem;
 }
-.admin-table button.danger:hover { background: #b91c1c; }
+button.danger:hover { background: #b91c1c; }

@@ -20,7 +20,7 @@
       </thead>
       <tbody>
         {{range .Records}}
-        <tr class="{{.RowClass}}{{if .Clickable}} clickable{{end}}"{{if .Clickable}} data-tournament="{{.TournamentID}}"{{end}}>
+        <tr class="{{.RowClass}}{{if .Clickable}} clickable{{end}}"{{if .Clickable}} data-tournament="{{.TournamentID}}" data-tname="{{.TournamentName}}"{{end}}>
           <td>{{.Date}}</td>
           <td>{{.Par}}</td>
           <td>{{.CR}}</td>
@@ -67,7 +67,7 @@
       detail.appendChild(cell);
       row.after(detail);
 
-      fetch("/golfer/" + golferId + "/tournament/" + row.dataset.tournament + "/detail")
+      fetch("/golfer/" + golferId + "/tournament/" + row.dataset.tournament + "/detail?name=" + encodeURIComponent(row.dataset.tname || ""))
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.status);
           return resp.text();

@@ -8,19 +8,24 @@ import (
 
 type Tournament struct {
 	ID         int64
+	Name       string
 	CourseName string
 	Date       string
 }
 
-func UpsertTournament(db *sql.DB, id int64, courseName, date string) error {
-	_, err := db.Exec(`INSERT INTO tournaments (id, course_name, date) VALUES (?, ?, ?)
-		ON CONFLICT(id) DO UPDATE SET course_name = excluded.course_name, date = excluded.date`,
-		id, courseName, date)
+func UpsertTournament(db *sql.DB, id int64, name, courseName, date string) error {
+	// An empty name never overwrites one stored earlier.
+	_, err := db.Exec(`INSERT INTO tournaments (id, name, course_name, date) VALUES (?, ?, ?, ?)
+		ON CONFLICT(id) DO UPDATE SET
+			name = CASE WHEN excluded.name = '' THEN tournaments.name ELSE excluded.name END,
+			course_name = excluded.course_name,
+			date = excluded.date`,
+		id, name, courseName, date)
 	return err
 }
 
 func ListTournaments(db *sql.DB) ([]Tournament, error) {
-	rows, err := db.Query(`SELECT id, course_name, date FROM tournaments ORDER BY date DESC`)
+	rows, err := db.Query(`SELECT id, name, course_name, date FROM tournaments ORDER BY date DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +33,7 @@ func ListTournaments(db *sql.DB) ([]Tournament, error) {
 	var out []Tournament
 	for rows.Next() {
 		var t Tournament
-		if err := rows.Scan(&t.ID, &t.CourseName, &t.Date); err != nil {
+		if err := rows.Scan(&t.ID, &t.Name, &t.CourseName, &t.Date); err != nil {
 			return nil, err
 		}
 		out = append(out, t)
@@ -115,6 +120,15 @@ func SaveTournamentResult(db *sql.DB, tournamentID, golferID int64, strokes, sta
 			holes_json = excluded.holes_json,
 			fetched_at = excluded.fetched_at`,
 		tournamentID, golferID, strokes, stableford, hasResult, holesJSON, time.Now().Format(time.RFC3339))
+	return err
+}
+
+// DeleteTournament removes the tournament and all its cached data.
+func DeleteTournament(db *sql.DB, tournamentID int64) error {
+	if err := InvalidateTournament(db, tournamentID); err != nil {
+		return err
+	}
+	_, err := db.Exec(`DELETE FROM tournaments WHERE id = ?`, tournamentID)
 	return err
 }
 

@@ -25,9 +25,10 @@ type DisplayRecord struct {
 	SU           int
 	PO           string
 	WhsHI        string
-	RowClass     string
-	TournamentID int64
-	Clickable    bool
+	RowClass       string
+	TournamentID   int64
+	TournamentName string
+	Clickable      bool
 }
 
 type GolferData struct {
@@ -101,9 +102,10 @@ func convertRecord(r api.HCPRecord) DisplayRecord {
 		SU:           r.SU,
 		PO:           strings.Replace(fmt.Sprintf("%.1f", r.PO), ".", ",", 1),
 		WhsHI:        r.WhsHI,
-		RowClass:     rowClass(r),
-		TournamentID: r.TournamentID,
-		Clickable:    r.TournamentID != 0 && r.Strokes != nil,
+		RowClass:       rowClass(r),
+		TournamentID:   r.TournamentID,
+		TournamentName: r.TournamentName,
+		Clickable:      r.TournamentID != 0 && r.Strokes != nil,
 	}
 }
 

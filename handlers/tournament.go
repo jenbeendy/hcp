@@ -21,6 +21,7 @@ import (
 
 type TournamentListItem struct {
 	ID         int64
+	Name       string
 	CourseName string
 	Date       string
 }
@@ -75,6 +76,7 @@ func Tournaments(database *sql.DB) http.HandlerFunc {
 		for _, t := range list {
 			data.Tournaments = append(data.Tournaments, TournamentListItem{
 				ID:         t.ID,
+				Name:       t.Name,
 				CourseName: t.CourseName,
 				Date:       formatDateTime(t.Date),
 			})
@@ -423,6 +425,23 @@ func buildResultRows(category api.TournamentCategory, members []api.TournamentEn
 		})
 	}
 	return data
+}
+
+// TournamentDelete removes a tournament and all its stored data, then
+// returns to the tournament list.
+func TournamentDelete(database *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tid, err := strconv.ParseInt(r.PathValue("tid"), 10, 64)
+		if err != nil {
+			http.Error(w, "Invalid tournament ID", 400)
+			return
+		}
+		if err := db.DeleteTournament(database, tid); err != nil {
+			http.Error(w, "DB error", 500)
+			return
+		}
+		http.Redirect(w, r, "/tournament", http.StatusSeeOther)
+	}
 }
 
 // TournamentInvalidate clears the cached categories, entries and results

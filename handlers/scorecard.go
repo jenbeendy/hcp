@@ -79,9 +79,10 @@ func RoundDetail(database *sql.DB, client *api.Client) http.HandlerFunc {
 			return
 		}
 
-		// remember the tournament so it shows up on /tournament
+		// remember the tournament so it shows up on /tournament; the
+		// name comes from the HCP-history row that linked here
 		if len(details) > 0 {
-			db.UpsertTournament(database, tid, details[0].CourseName, details[0].RoundDate)
+			db.UpsertTournament(database, tid, r.URL.Query().Get("name"), details[0].CourseName, details[0].RoundDate)
 		}
 
 		page := ScorecardPage{TournamentID: tid, Rounds: make([]Scorecard, len(details))}

@@ -24,6 +24,7 @@ type HCPRecord struct {
 	Indicators        []string `json:"indicators"`
 	OutstandingResult bool     `json:"outstandingResult"`
 	TournamentID      int64    `json:"tournamentId"`
+	TournamentName    string   `json:"tournamentName"`
 	TournamentRoundID int64    `json:"tournamentRoundId"`
 }
 

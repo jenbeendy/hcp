@@ -47,10 +47,15 @@ func Migrate(db *sql.DB) error {
 			return err
 		}
 	}
-	// Older databases predate the holes_json column.
-	if _, err := db.Exec(`ALTER TABLE tournament_results ADD COLUMN holes_json TEXT NOT NULL DEFAULT ''`); err != nil &&
-		!strings.Contains(err.Error(), "duplicate column") {
-		return err
+	// Older databases predate these columns.
+	alters := []string{
+		`ALTER TABLE tournament_results ADD COLUMN holes_json TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE tournaments ADD COLUMN name TEXT NOT NULL DEFAULT ''`,
+	}
+	for _, s := range alters {
+		if _, err := db.Exec(s); err != nil && !strings.Contains(err.Error(), "duplicate column") {
+			return err
+		}
 	}
 	return nil
 }

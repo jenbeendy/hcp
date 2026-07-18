@@ -9,7 +9,9 @@
       <thead>
         <tr>
           <th>Datum</th>
+          <th>Turnaj</th>
           <th>Hřiště</th>
+          <th></th>
           <th></th>
         </tr>
       </thead>
@@ -17,8 +19,15 @@
         {{range .Tournaments}}
         <tr>
           <td>{{.Date}}</td>
+          <td>{{.Name}}</td>
           <td>{{.CourseName}}</td>
           <td><a href="/tournament/{{.ID}}/results">Výsledky →</a></td>
+          <td>
+            <form method="post" action="/tournament/{{.ID}}/delete"
+                  onsubmit="return confirm('Smazat turnaj a všechna jeho data z databáze?');">
+              <button type="submit" class="danger">Smazat</button>
+            </form>
+          </td>
         </tr>
         {{end}}
       </tbody>

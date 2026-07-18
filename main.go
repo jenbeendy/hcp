@@ -47,6 +47,7 @@ func main() {
 	mux.HandleFunc("GET /tournament/{tid}/results", handlers.TournamentResults(database, client))
 	mux.HandleFunc("GET /tournament/{tid}/results/data", handlers.TournamentResultsRows(database, client))
 	mux.HandleFunc("POST /tournament/{tid}/invalidate", handlers.TournamentInvalidate(database))
+	mux.HandleFunc("POST /tournament/{tid}/delete", handlers.TournamentDelete(database))
 	mux.HandleFunc("GET /adminpage", handlers.AdminGet(database))
 	mux.HandleFunc("POST /adminpage", handlers.AdminPost(database, client))
 	mux.HandleFunc("POST /adminpage/delete", handlers.AdminDelete(database))
