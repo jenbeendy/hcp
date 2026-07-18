@@ -400,13 +400,9 @@ func buildResultRows(category api.TournamentCategory, members []api.TournamentEn
 	}
 	data.Done = len(pending) == 0
 
-	place := 0
 	for i, s := range ranked {
-		if i == 0 || sortKey(s) != sortKey(ranked[i-1]) {
-			place = i + 1
-		}
 		data.Rows = append(data.Rows, ResultRow{
-			Place:      fmt.Sprintf("%d.", place),
+			Place:      fmt.Sprintf("%d.", i+1),
 			GolferID:   s.entry.GolferID,
 			Name:       s.entry.GolferName,
 			Club:       s.entry.ClubShortName,
